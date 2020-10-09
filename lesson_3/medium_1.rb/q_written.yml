@@ -1,0 +1,9 @@
+4. The first method using '<<' is better becasue it actually mutates the buffer
+
+6. The answer will be 34 becasue the method does not mutate 'answer'
+
+7. The data did get ransacked because Spot is changing values in the input hash, not creating a new one.
+
+8. 'paper'
+
+9. 'no'

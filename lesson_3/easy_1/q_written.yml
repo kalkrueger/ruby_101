@@ -1,0 +1,14 @@
+Q1. This will print [1, 2, 2, 3] because 'uniq' is not a destructive method
+
+Q2. If it is at the end of a method a '?' will usually returen a boolean value and '!' will mean the method is distructive.
+    1) '!=' is basically 'not equal', you are asking if the return is opposite of the argument
+    2) '!' before something turns it into the opposite of its boolean
+    3) '!' after a method usually means it is distructive
+    4) '?' can be used befor ':' as an if ternary operator
+    5) '?' after something usually means the method is boolean
+    6) '!!' before something turns an object into its boolean equivalent
+
+Q4. 'delete_at' will delete the item at the given index
+    'delete' will search for that value and delete it
+
+    
