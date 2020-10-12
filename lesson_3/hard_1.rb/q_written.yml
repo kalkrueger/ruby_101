@@ -1,0 +1,7 @@
+1. 'nil' because the if statement does not specify an alternative
+
+2. {a: 'hi there'} in line 2 we assign both vairables to the same object
+
+3. A) one is one, two is two, three is three
+   B) one is one, two is two, three is three
+   C) one is two, two is three, three is one
