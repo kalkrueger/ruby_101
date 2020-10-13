@@ -10,5 +10,3 @@ def dot_separated_ip_address?(input_string)
     return false
   end
 end
-
-puts "11.3.44".count('.')
