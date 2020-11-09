@@ -1,6 +1,13 @@
-require 'pry'
 def prompt(msg)
   puts "=> #{msg}"
+end
+
+def opening
+  system 'clear'
+  prompt "Welcome to something 1, we are playing to #{WIN_NUM}"
+  prompt "The first player to reach 5 hands will be the winner!"
+  prompt "Press enter to deal the first hand!"
+  gets
 end
 
 deck = []
@@ -35,7 +42,7 @@ def new_deck(deck, scores, suits)
 end
 
 def play_card_dealer(deck, hand, score)
-  if score.sum < 17
+  if score.sum < BREAK_NUM
     hand << deck.shift
   end
   pick_score(hand, score)
@@ -78,7 +85,7 @@ end
 def pick_score(hand, score)
   best_score = []
   hand.sort_by { |h| h.values[0].values[0] }.reverse.each do |h|
-    if best_score.flatten.sum > 10
+    if best_score.flatten.sum > (WIN_NUM - 11)
       best_score << h.values[0].values[0].first
     else
       best_score << h.values[0].values[0].last
@@ -88,9 +95,9 @@ def pick_score(hand, score)
 end
 
 def busted?(dealer, player)
-  if dealer.sum > 21
+  if dealer.sum > WIN_NUM
     "Dealer Busted!"
-  elsif player.sum > 21
+  elsif player.sum > WIN_NUM
     "Player Busted!"
   end
 end
@@ -132,7 +139,23 @@ def keep_score(dscore, pscore, overall_score)
   prompt "Dealer has won #{overall_score['Dealer']} hand(s)"
 end
 
+def play_to_five(overall_score)
+  winner = nil
+  if overall_score.values.include?(5)
+    overall_score.select do |k, v|
+      winner = k if v == 5
+    end
+    prompt "Game over! #{winner} was the first to win five hands!"
+  end
+  winner
+end
+
+WIN_NUM = 31
+BREAK_NUM = (WIN_NUM - 4)
+
 overall_score = { "Player" => 0, "Dealer" => 0 }
+
+opening
 
 loop do
   new_deck(deck, scores, suits)
@@ -140,7 +163,6 @@ loop do
   players_score = []
   dealer_hand = []
   dealer_score = []
-  binding.pry
 
   loop do
     loop do
@@ -157,7 +179,7 @@ loop do
       prompt "Hit or Stay? (h/s)"
       answer = gets.chomp.downcase
       if answer.start_with?('s')
-        break if dealer_score.sum >= 17
+        break if dealer_score.sum >= BREAK_NUM
         play_card_dealer(deck, dealer_hand, dealer_score)
         break if busted?(dealer_score, players_score)
         display_showing(dealer_hand, players_hand)
@@ -178,7 +200,7 @@ loop do
     keep_score(dealer_score, players_score, overall_score)
     break
   end
-  prompt "Keep playing? (y/n)"
-  answer = gets.chomp.downcase
-  break if answer.start_with?('n')
+  break if play_to_five(overall_score)
+  prompt "Press enter to deal the next hand!"
+  gets
 end
