@@ -4,8 +4,8 @@ end
 
 def opening
   system 'clear'
-  prompt "Welcome to something 1, we are playing to #{WIN_NUM}"
-  prompt "The first player to reach 5 hands will be the winner!"
+  prompt "Welcome to 'Something 1', we are playing to #{WIN_NUM}."
+  prompt "The first player to reach 5 hands will be the winner."
   prompt "Press enter to deal the first hand!"
   gets
 end
@@ -13,22 +13,22 @@ end
 deck = []
 
 scores = [
-  { ace: [1, 11] },
-  { two: [2] },
-  { three: [3] },
-  { four: [4] },
-  { five: [5] },
-  { six: [6] },
-  { seven: [7] },
-  { eight: [8] },
-  { nine: [9] },
-  { ten: [10] },
-  { jack: [10] },
-  { queen: [10] },
-  { king: [10] }
+  { 'Ace' => 1 },
+  { 'Two' => 2 },
+  { 'Three' => 3 },
+  { 'Four' => 4 },
+  { 'Five' => 5 },
+  { 'Six' => 6 },
+  { 'Seven' => 7 },
+  { 'Eight' => 8 },
+  { 'Nine' => 9 },
+  { 'Ten' => 10 },
+  { 'Jack' => 10 },
+  { 'Queen' => 10 },
+  { 'King' => 10 }
 ]
 
-suits = [:clubs, :diamonds, :hearts, :spades]
+suits = ['Clubs', 'Diamonds', 'Hearts', 'Spades']
 
 def new_deck(deck, scores, suits)
   new_deck = []
@@ -44,20 +44,20 @@ end
 def play_card_dealer(deck, hand, score)
   if score.sum < BREAK_NUM
     hand << deck.shift
+    optimize_score(hand, score)
   end
-  pick_score(hand, score)
 end
 
 def play_card_player(deck, hand, score)
   hand << deck.shift
-  pick_score(hand, score)
+  optimize_score(hand, score)
 end
 
 def display_hand(hand)
   hand.each do |h|
-    puts h.values[0].keys[0].to_s.capitalize.center(10)
+    puts h.values[0].keys[0].center(10)
     puts "of".center(10)
-    puts h.keys[0].to_s.capitalize.center(10)
+    puts h.keys[0].center(10)
     puts "----------"
   end
 end
@@ -82,16 +82,28 @@ def display_table(dhand, phand)
   display_hand(phand)
 end
 
-def pick_score(hand, score)
-  best_score = []
-  hand.sort_by { |h| h.values[0].values[0] }.reverse.each do |h|
-    if best_score.flatten.sum > (WIN_NUM - 11)
-      best_score << h.values[0].values[0].first
-    else
-      best_score << h.values[0].values[0].last
-    end
+def one_or_eleven(h, optimal_card_values)
+  if optimal_card_values.sum > (WIN_NUM - 11)
+    h.values[0].values[0]
+  else
+    h.values[0].values[0] + 10
   end
-  score.replace(best_score)
+end
+
+def ace?(h, optimal_card_values)
+  if h.values[0].keys[0] == 'Ace'
+    one_or_eleven(h, optimal_card_values)
+  else
+    h.values[0].values[0]
+  end
+end
+
+def optimize_score(hand, score)
+  optimal_card_values = []
+  hand.sort_by { |h| h.values[0].values[0] }.reverse.each do |h|
+    optimal_card_values << ace?(h, optimal_card_values)
+  end
+  score.replace(optimal_card_values)
 end
 
 def busted?(dealer, player)
@@ -150,57 +162,77 @@ def play_to_five(overall_score)
   winner
 end
 
-WIN_NUM = 31
+def play_again?
+  prompt "Would you like to play again? (y/n)"
+  answer = gets.chomp.downcase
+  loop do
+    if answer.start_with?('n') || answer.start_with?('y')
+      break
+    else
+      prompt "That's not a valid choice. Please pick y or n."
+      answer = gets.chomp.downcase
+    end
+  end
+  answer
+end
+
+WIN_NUM = 21
 BREAK_NUM = (WIN_NUM - 4)
 
-overall_score = { "Player" => 0, "Dealer" => 0 }
-
-opening
-
 loop do
-  new_deck(deck, scores, suits)
-  players_hand = []
-  players_score = []
-  dealer_hand = []
-  dealer_score = []
+  overall_score = { "Player" => 0, "Dealer" => 0 }
+
+  opening
 
   loop do
-    loop do
-      break if deck.count <= 48
-      system 'clear'
-      play_card_dealer(deck, dealer_hand, dealer_score)
-      play_card_player(deck, players_hand, players_score)
-    end
-
-    display_showing(dealer_hand, players_hand)
-    prompt "Player's score is #{players_score.sum}"
+    new_deck(deck, scores, suits)
+    players_hand = []
+    players_score = []
+    dealer_hand = []
+    dealer_score = []
 
     loop do
-      prompt "Hit or Stay? (h/s)"
-      answer = gets.chomp.downcase
-      if answer.start_with?('s')
-        break if dealer_score.sum >= BREAK_NUM
+      loop do
+        break if deck.count <= 48
+        system 'clear'
         play_card_dealer(deck, dealer_hand, dealer_score)
-        break if busted?(dealer_score, players_score)
-        display_showing(dealer_hand, players_hand)
-        prompt "Player's score is #{players_score.sum}"
-      elsif answer.start_with?('h')
         play_card_player(deck, players_hand, players_score)
-        break if busted?(dealer_score, players_score)
-        play_card_dealer(deck, dealer_hand, dealer_score)
-        break if busted?(dealer_score, players_score)
-        display_showing(dealer_hand, players_hand)
-        prompt "Player's score is #{players_score.sum}"
-      else
-        prompt "That's not a valid choice."
       end
+
+      display_showing(dealer_hand, players_hand)
+      prompt "Player's score is #{players_score.sum}"
+
+      loop do
+        prompt "Hit or Stay? (h/s)"
+        answer = gets.chomp.downcase
+        if answer.start_with?('s')
+          break if dealer_score.sum >= BREAK_NUM
+          play_card_dealer(deck, dealer_hand, dealer_score)
+          break if busted?(dealer_score, players_score)
+          display_showing(dealer_hand, players_hand)
+          prompt "Player's score is #{players_score.sum}"
+        elsif answer.start_with?('h')
+          play_card_player(deck, players_hand, players_score)
+          break if busted?(dealer_score, players_score)
+          play_card_dealer(deck, dealer_hand, dealer_score)
+          break if busted?(dealer_score, players_score)
+          display_showing(dealer_hand, players_hand)
+          prompt "Player's score is #{players_score.sum}"
+        else
+          prompt "That's not a valid choice."
+        end
+      end
+      display_table(dealer_hand, players_hand)
+      display_scores(dealer_score, players_score)
+      keep_score(dealer_score, players_score, overall_score)
+      break
     end
-    display_table(dealer_hand, players_hand)
-    display_scores(dealer_score, players_score)
-    keep_score(dealer_score, players_score, overall_score)
+    break if play_to_five(overall_score)
+    prompt "Press enter to deal the next hand!"
+    gets
+  end
+  if play_again?.start_with?('n')
+    prompt "Thanks for playing! Good bye."
     break
   end
-  break if play_to_five(overall_score)
-  prompt "Press enter to deal the next hand!"
-  gets
 end

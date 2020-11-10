@@ -1,4 +1,3 @@
-require 'pry'
 def prompt(msg)
   puts "=> #{msg}"
 end
@@ -140,7 +139,6 @@ loop do
   players_score = []
   dealer_hand = []
   dealer_score = []
-  binding.pry
 
   loop do
     loop do
