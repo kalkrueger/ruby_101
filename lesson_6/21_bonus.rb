@@ -11,7 +11,7 @@ def opening
   gets
 end
 
-cards = [
+CARDS = [
   { 'Ace' => 1 },
   { 'Two' => 2 },
   { 'Three' => 3 },
@@ -27,12 +27,12 @@ cards = [
   { 'King' => 10 }
 ]
 
-suits = ['Clubs', 'Diamonds', 'Hearts', 'Spades']
+SUITS = ['Clubs', 'Diamonds', 'Hearts', 'Spades']
 
-def new_deck(deck, suits, cards)
+def new_deck(deck)
   new_deck = []
-  suits.each do |suit|
-    cards.each do |card|
+  SUITS.each do |suit|
+    CARDS.each do |card|
       new_deck << { suit: suit, card: card.keys[0], score: card.values[0] }
     end
   end
@@ -205,7 +205,7 @@ loop do
   opening
 
   loop do
-    new_deck(deck, suits, cards)
+    new_deck(deck)
     players_hand = []
     players_score = []
     dealer_hand = []
